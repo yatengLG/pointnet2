@@ -87,3 +87,4 @@ class indoor3d_Dataset(Dataset):
 if __name__ == '__main__':
 
     dataset = indoor3d_Dataset(is_train=False, data_root='./')
+    print(dataset.__len__())
