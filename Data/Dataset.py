@@ -10,6 +10,7 @@ __all__ = ['indoor3d_Dataset']
 class indoor3d_Dataset(Dataset):
     def __init__(self, is_train = True, data_root='Data', test_area=5):
         self.data_root = data_root
+
         if self.exists_data():
             train_data, train_label, test_data, test_label = self.recognize_all_data(test_area=test_area)
             if is_train:
