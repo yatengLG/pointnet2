@@ -4,10 +4,7 @@
 from Data.Dataset import indoor3d_Dataset
 from torch.utils.data import DataLoader
 from Model.Pointnet2 import PointnetMSG
-from torch import nn
-import torch
 from torch.nn import DataParallel
-from Utils.visdom_op import setup_visdom, visdom_line
 import numpy as np
 import pandas
 
@@ -26,23 +23,24 @@ def cal_iou(pred, label):
 
 
 def Eval(model, loader):
-    eval_dic = {}
-    for step, (xyzs, points, labels, file_names) in enumerate(loader):
+    result = []
+    for step, (data, labels) in enumerate(loader):
+        xyzs, points = data[:, :, :3], data[:, :, 3:]
         xyzs, points = xyzs.transpose(1, 2), points.transpose(1, 2)
 
         preds = model(xyz=xyzs, points=points)
         preds = preds.max(-1)[1].cpu().numpy()
         labels = labels.numpy()
 
-        for pred, label, file_name in zip(preds, labels, file_names):
+        for pred, label in zip(preds, labels):
             # print('pred:',pred)
             # print('label:',label)
-            eval_dic[file_name] = cal_iou(pred, label)
+            result.append(cal_iou(pred, label))
 
         if step ==2:
             break
 
-    df = pandas.DataFrame(eval_dic)
+    df = pandas.DataFrame(result)
     print(df)
 
     df.to_csv('eval_result.csv')
